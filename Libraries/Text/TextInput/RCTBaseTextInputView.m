@@ -107,10 +107,17 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
   // for more info.
   // Lastly, when entering a password, etc., there will be additional styling on the field as the native text view
   // handles showing the last character for a split second.
+  __block BOOL fontHasBeenUpdatedBySystem = false;
+  [oldText enumerateAttribute:@"NSOriginalFont" inRange:NSMakeRange(0, oldText.length) options:0 usingBlock:^(id value, NSRange range, BOOL *stop) {
+    if (value){
+      fontHasBeenUpdatedBySystem = true;
+    }
+  }];
   BOOL shouldFallbackToBareTextComparison =
     [self.backedTextInputView.textInputMode.primaryLanguage isEqualToString:@"dictation"] ||
     self.backedTextInputView.markedTextRange ||
-    self.backedTextInputView.isSecureTextEntry;
+    self.backedTextInputView.isSecureTextEntry ||
+    fontHasBeenUpdatedBySystem;
   if (shouldFallbackToBareTextComparison) {
     return ([newText.string isEqualToString:oldText.string]);
   } else {
